@@ -88,3 +88,20 @@ id          sender      recipient   timestamp         replyid     message
 3           Alice       Bob         1667414282.94605  0           A message...
 4           Alice       Bob         1667418192.99294  0           aaaa        
 5           user@user   user2@user  1667419643.60144  0           Hello user2 
+id          sender      recipient   timestamp         replyid     message     
+----------  ----------  ----------  ----------------  ----------  ------------
+16          user2@user  user2@user  1667427687.09266  0           A message...
+15          user2@user  user2@user  1667425501.48092  0           A message...
+6           user@user   user2@user  1667419961.06276  0           Hello again!
+5           user@user   user2@user  1667419643.60144  0           Hello user2 
+id          email              password                          loged     
+----------  -----------------  --------------------------------  ----------
+1           miguel@miguel.com  3aaee883118430b2e804a37d1a2b2768  0         
+2           miguel2@miguel.co  3aaee883118430b2e804a37d1a2b2768  0         
+3           miguel5@miguel.co  3aaee883118430b2e804a37d1a2b2768  0         
+4           username10@userna  6b29b51805b2bf7c256b89a2dadecfa7  0         
+5           user@user          97ef4217cec896792c0c518addd05cd2  1         
+6           user1@user         97ef4217cec896792c0c518addd05cd2  0         
+7           user2@user         97ef4217cec896792c0c518addd05cd2  1         
+8           user5@user         97ef4217cec896792c0c518addd05cd2  0         
+9           user8@user         97ef4217cec896792c0c518addd05cd2  0         

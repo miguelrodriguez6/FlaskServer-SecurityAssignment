@@ -54,12 +54,6 @@ login_manager.login_view = "login"
 #sess = Session()
 #sess.init_app(app)
 
-
-
-users = {'alice' : {'password' : 'password123', 'token' : 'tiktok'},
-         'bob' : {'password' : 'bananas'}
-         }
-
 # Class to store user info
 # UserMixin provides us with an `id` field and the necessary
 # methods (`is_authenticated`, `is_active`, `is_anonymous` and `get_id()`)
@@ -179,30 +173,31 @@ def login():
         hashed = hashlib.md5(dataBase_password.encode())
         hexhashed = hashed.hexdigest()
 
-        stmt = f"select password from users where email='{username}' AND password='{hexhashed}'"
-        c = conn.execute(stmt)
+        stmt = f"select password from users where email=? AND password=?"
+        c = conn.execute(stmt, (username, hexhashed))
         rows = c.fetchall()
         c.close()
 
-        #Check that the password is correct
-        if hexhashed==rows[0][0]:
+        if len(rows)>0:
+            #Check that the password is correct
+            if hexhashed==rows[0][0]:
 
-            user = user_loader(username)
+                user = user_loader(username)
 
-            # automatically sets logged in session cookie
-            login_user(user)
+                # automatically sets logged in session cookie
+                login_user(user)
 
-            flask.flash('Logged in successfully.')
+                flask.flash('Logged in successfully.')
 
-            next = flask.request.args.get('next')
+                next = flask.request.args.get('next')
 
-            # is_safe_url should check if the url is safe for redirects.
-            # See http://flask.pocoo.org/snippets/62/ for an example.
-            if False and not is_safe_url(next):
-                return flask.abort(400)
+                # is_safe_url should check if the url is safe for redirects.
+                # See http://flask.pocoo.org/snippets/62/ for an example.
+                if False and not is_safe_url(next):
+                    return flask.abort(400)
 
-            return flask.redirect(next or flask.url_for('index_html') or flask.url_for('index'))
-
+                return flask.redirect(next or flask.url_for('index_html') or flask.url_for('index'))
+        print('Incorrect password')
     return render_template('./login.html', form=form)
 
 @app.route('/logout')
@@ -227,7 +222,7 @@ def register():
                 print(f'ERROR: missing email or password')
                 return render_template('./register.html')
             stmt = f"INSERT INTO users (email, password, loged) values (?, ?, ?);"
-            result = f"Query: {pygmentize(stmt)}\n"
+            #result = f"Query: {pygmentize(stmt)}\n"
             # adding 5gz as password
             salt = "5gz"
             # Adding salt at the last of the password
@@ -235,9 +230,11 @@ def register():
             # Encoding the password
             hashed = hashlib.md5(dataBase_password.encode())
             try:
+                print(email[0])
+                print(hashed.hexdigest())
                 conn.execute(stmt, (email[0], hashed.hexdigest(), 0))
             except Error as e:
-                print('ERROR')
+                print('Not successfully registration')
                 return render_template('./register.html')
 
             flask.flash('Successfully registration.')
@@ -250,7 +247,7 @@ def register():
 
             return flask.redirect(next or flask.url_for('login'))
         except Error as e:
-            return f'{result}ERROR: {e}'
+            return f'Not successfully registrated. ERROR: {e}'
 
     return render_template('./register.html')
 
@@ -260,12 +257,14 @@ def register():
 @app.get('/search')
 def search():
     query = request.args.get('q') or request.form.get('q') or '*'
-    stmt = f"SELECT * FROM messages WHERE message GLOB '{query}' AND recipient GLOB '{session['username']}'"
-    result = f"Query: {pygmentize(stmt)}\n"
+    see = ('sender', 'recipient')
+    stmt = f"SELECT * FROM messages WHERE message GLOB ? AND {see[1]} GLOB ? ORDER BY id DESC"
+    #result = f"Query: {pygmentize(stmt)}\n"
+
     try:
-        c = conn.execute(stmt)
+        c = conn.execute(stmt, (query, session['username']))
         rows = c.fetchall()
-        result = result + 'Result:\n'
+        result = 'Result:\n'
         for row in rows:
             result = f'{result}    {dumps(row)}\n'
         c.close()
@@ -308,11 +307,10 @@ def send():
         if not sender or not message:
             return f'ERROR: missing sender or message'
         stmt = f"INSERT INTO messages (sender, recipient, timestamp, replyid, message) values (?, ?, ?, ?, ?);"
-        result = f"Query: {pygmentize(stmt)}\n"
         conn.execute(stmt, (sender, recipient, time_var, replyid, message))
-        return f'{result}ok'
+        return f'Message sent to {recipient}.'
     except Error as e:
-        return f'{result}ERROR: {e}'
+        return f"Couldn't send the message. ERROR: {e}"
 
 @app.get('/announcements')
 def announcements():
@@ -364,11 +362,3 @@ try:
 except Error as e:
     print(e)
     sys.exit(1)
-
-
-"""
-c.execute('''CREATE TABLE IF NOT EXISTS loged_users (
-    id integer PRIMARY KEY,
-    email TEXT NOT NULL,
-    CONSTRAINT email_unique UNIQUE (email));''')
-"""

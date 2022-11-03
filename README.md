@@ -49,13 +49,21 @@ Some importants technical details on the implementation:
 Questions:
 
 
-Threat model – who might attack the application? What can an attacker do? What damage could be done (in terms of confidentiality, integrity, availability)? Are there limits to what an attacker can do? Are there limits to what we can sensibly protect against?
+->>Threat model – who might attack the application? What can an attacker do? What damage could be done (in terms of confidentiality, integrity, availability)? Are there limits to what an attacker can do? Are there limits to what we can sensibly protect against?
+  
+Threat modeling is a structured approach of identifying and prioritizing potential threats to a system, and determining the value that potential mitigations would have in reducing or neutralizing those threats.
 
-What are the main attack vectors for the application?
+->>What are the main attack vectors for the application?
+  
 
-What should we do (or what have you done) to protect against attacks?
+->>What should we do (or what have you done) to protect against attacks?
+  
 
-What is the access control model?
+->>What is the access control model?
 
-How can you know that you security is good enough? (traceability)
+  
+->>How can you know that you security is good enough? (traceability)
+  
+  
+  
 

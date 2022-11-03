@@ -51,9 +51,19 @@ Questions:
 
 ->>Threat model – who might attack the application? What can an attacker do? What damage could be done (in terms of confidentiality, integrity, availability)? Are there limits to what an attacker can do? Are there limits to what we can sensibly protect against?
   
-Threat modeling is a structured approach of identifying and prioritizing potential threats to a system, and determining the value that potential mitigations would have in reducing or neutralizing those threats.
+Threat modeling is a structured approach of identifying and prioritizing potential threats to a system, and determining the value that potential mitigations would have in reducing or neutralizing those threats. Attackers are people that normally commits these attacks for money (It could be one or a group of people). They can do many types of attacks. Some examples are steal privacy data, find the way to enter the database of a bank and modify it or even just attack a server and make it not working anymore.
+  Confidentiality
+  Confidentiality measures protect information from unauthorized access and misuse.  Most information systems house information that has some degree of sensitivity. It might be proprietary business information that competitors could use to their advantage, or personal information regarding an organization’s employees, customers or clients.
+  Integrity
+  Integrity measures protect information from unauthorized alteration.  These measures provide assurance in the accuracy and completeness of data.  The need to protect information includes both data that is stored on systems and data that is transmitted between systems such as email.  In maintaining integrity, it is not only necessary to control access at the system level, but to further ensure that system users are only able to alter information that they are legitimately authorized to alter.
+  Availability
+  In order for an information system to be useful it must be available to authorized users.  Availability measures protect timely and uninterrupted access to the system. Some of the most fundamental threats to availability are non-malicious in nature and include hardware failures, unscheduled software downtime and network bandwidth issues.  Malicious attacks include various forms of sabotage intended to cause harm to an organization by denying users access to the information system.
+  
+  The truth is that we don't know the limits of what an attacaker can do. Over the years new ways of attacks are appearing so we are never going to know how much an attacker can and will do. We just should be worried about that and try the best we can to protect our system of external attacks. The limits of our protections are in the limits of our knowledge about how an attacker can attack the system.
+  
 
 ->>What are the main attack vectors for the application?
+![image](https://user-images.githubusercontent.com/91728957/199782826-201d69c5-552b-41b0-a27a-0b35a8998224.png)
   
 
 ->>What should we do (or what have you done) to protect against attacks?

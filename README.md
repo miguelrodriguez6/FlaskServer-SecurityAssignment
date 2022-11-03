@@ -1,6 +1,5 @@
 INF226 Compulsory Assignment 2 (Fall 2022),     Miguel Rodríguez Martínez
 
- -> Part 2A – Implementation
 Initially we had a very simple and insecure server. We needed to modify it and convert it to a secure server. It should be protected from the main attacks (SQL injections, XSS, CSRF, etc).
 
 First of all, we need to take a look to the structure of the code. Everything is mixed is one file. We should implement the different functionalities of the server in different files. This way it's easier to understand how it works and find the part of the programs that we want to see faster. Also the maintenance is going to be less hard as we can restructure or change code without having a rough idea of which and how functionalities are implemented on another part of the code.
@@ -36,22 +35,18 @@ AssertionError: View function mapping is overwriting an existing endpoint functi
  The button 'Search!' will show us the messages where we are the sender or the recipient and the message is the one written in the box corresponding to 'Search:'. If we put an '*' all the messages are going to be shown. If we click the button 'Show all' all the messages where we are the sender or the recipients are going to be showed.
  We can also search for a message using its id. But to see it we also must be the sender or the recipient. Just put the id number in the 'Search ID:' box and the message is going to be showed if it exists and we have acces to it. If the id is not specified all the messages are showed.
  Lastly, we have the posibility to send new messages to an user. We should specify all the values. In 'To:' box we have to write the email of the recipient or 'everyone' if we want to send the message to all the users. In 'Message:' box we write the content of the message and in 'Replying to:' we need to write the id of the message we are answering to.
+ 
+Some importants technical details on the implementation:
+ - I stablished app.secrect_key as a random value.
+ - I converted all the sql statements to prepared statements to avoid SQL injection(using ?).
+ - I used html.escape() function to avoid for example an XSS attack.
+ - I used a csrf token to avoid cross site request forgery attack(CSRF).
+ - When you try to create an user the program checks if it's secure enough.
+ - The password is encrypted when is stored in the database.
+ - The column id is unique in the users table.
+ 
 
-
- -> Part 2B – Documentation
-
-Write a README.md with:
-
-a brief overview of your design considerations from Part A,
-the features of your application,
-instructions on how to test/demo it,
-technical details on the implementation,
-answers to the questions below
-
-
-
-
-Questions
+Questions:
 
 
 Threat model – who might attack the application? What can an attacker do? What damage could be done (in terms of confidentiality, integrity, availability)? Are there limits to what an attacker can do? Are there limits to what we can sensibly protect against?

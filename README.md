@@ -2,12 +2,12 @@ INF226 Compulsory Assignment 2 (Fall 2022),     Miguel Rodríguez Martínez
 
 Initially we had a very simple and insecure server. We needed to modify it and convert it to a secure server. It should be protected from the main attacks (SQL injections, XSS, CSRF, etc.).
 First, we need to take a look to the structure of the code. Everything is mixed is one file. We should implement the different functionalities of the server in different files. This way it's easier to understand how it works and find the part of the programs that we want to see faster. Also, the maintenance is going to be less hard as we can restructure or change code without having a rough idea of which and how functionalities are implemented on another part of the code.
-We should restructure the functionalities of the server into different files where the ones that
-have a relation between them can go together in the same file. For example, in this case we can
-separate the search and send functions to another file. Also, we can create a new file for the
-login and registration(new) and so on with the rest of the functionalities.
+We should restructure the functionalities of the server into different files where the ones that have a relation between them can go together in the same file. For example, in this case we can separate the search and send functions to another file. Also, we can create a new file for the login and registration (new) and so on with the rest of the functionalities.
+
 ------------------------------------------------------------------------------------------------
+
 /**My code is not restructured because of that**/
+
 /** PROBLEM WHEN THE CODE IS RESTRUCTURED, I COULDN'T SOLVE IT. IT GIVES ME THE FOLLOWING ERROR. I COULDN'T FIND ANY OVERWRITTEN FUNCTION**/
 Traceback (most recent call last): File "messages.py", line 4, in from app import app File
 "/home/miguel/Documents/ssec/login-server/app.py", line 405, in import messages File
@@ -17,6 +17,7 @@ self.add_url_rule(rule, endpoint, f, **options) File "/home/miguel/.local/lib/py
 "/home/miguel/.local/lib/python3.8/site-packages/flask/app.py", line 1358, in add_url_rule
 raise AssertionError( AssertionError: View function mapping is overwriting an existing endpoint
 function: send/
+
 ------------------------------------------------------------------------------------------------
 
 How the application works and how to test it.
@@ -33,7 +34,8 @@ Some important technical details on the implementation:
 •	I used a csrf token to avoid cross site request forgery attack (CSRF).
 •	When you try to create a user the program checks if it's secure enough.
 •	The password is encrypted when is stored in the database.
-•	The column id is unique in the users’ table.
+•	The column id is unique in the users' table.
+
 ------------------------------------------------------------------------------------------------
 
   o	Threat model – who might attack the application? What can an attacker do? What damage could  be done (in terms of confidentiality, integrity, availability)? Are there limits to what an     attacker can do? Are there limits to what we can sensibly protect against?

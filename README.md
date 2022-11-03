@@ -28,12 +28,19 @@ All the information stored in the database passes through a process of sanitizat
 Now, a simple explanation of how the server works. The first page that appears to us is the login page. Here we can enter the email and password of a registered user (it won't work with user alice or bob). To register a user, we have to click on 'Register new user.'. We will be redirect to a registration page. Here we can register a user into the application using an email and a secure password (must contain more than 6 characters, at least one number and an uppercase). We can also go back to the login page clicking on 'Login'. Once we have submitted the form, we are redirected to the login page (I recommend to register a few users to send messages between them). Once we have at least one user we can access to the messaging page. First, to log out we can click the link below called 'Log out' and we are going to be redirected again to the login page being the user logged out. There are a few buttons. The button 'Search!' will show us the messages where we are the sender, or the recipient and the message is the one written in the box corresponding to 'Search:'. If we put an '*' all the messages are going to be shown. If we click the button 'Show all' all the messages where we are the sender, or the recipients are going to be showed. We can also search for a message using its id. But to see it we also must be the sender or the recipient. Just put the id number in the 'Search ID:' box and the message is going to be showed if it exists and we have access to it. If the id is not specified all the messages are showed. Lastly, we have the possibility to send new messages to a user. We should specify all the values. In 'To:' box we have to write the email of the recipient or 'everyone' if we want to send the message to all the users. In 'Message:' box we write the content of the message and in 'Replying to:' we need to write the id of the message we are answering to.
 
 Some important technical details on the implementation:
+
 •	I stablished app.secrect_key as a random value.
+
 •	I converted all the SQL statements to prepared statements to avoid SQL injection (using ?).
+
 •	I used html.escape() function to avoid for example an XSS attack.
+
 •	I used a csrf token to avoid cross site request forgery attack (CSRF).
+
 •	When you try to create a user the program checks if it's secure enough.
+
 •	The password is encrypted when is stored in the database.
+
 •	The column id is unique in the users' table.
 
 ------------------------------------------------------------------------------------------------
@@ -41,9 +48,13 @@ Some important technical details on the implementation:
   o	Threat model – who might attack the application? What can an attacker do? What damage could  be done (in terms of confidentiality, integrity, availability)? Are there limits to what an     attacker can do? Are there limits to what we can sensibly protect against?
   
   Threat modeling is a structured approach of identifying and prioritizing potential threats to a system and determining the value that potential mitigations would have in reducing or neutralizing those threats. Attackers are people that normally commits these attacks for money (It could be one or a group of people). They can do many types of attacks. Some examples are steal privacy data, find the way to enter the database of a bank and modify it or even just attack a server and make it not working anymore. 
+  
   -> Confidentiality measures protect information from unauthorized access and misuse. Someone could access the data and use it against us.
+  
   -> Integrity measures protect information from unauthorized alteration. An unauthorized person can’t change the content stored on the database.
+  
   -> Availability. In order for an information system to be useful it must be available to authorized users. Availability measures protect timely and uninterrupted access to the system.
+  
 The truth is that we don't know the limits of what an attacker can do. Over the years new ways of attacks are appearing so we are never going to know how much an attacker can and will do. We just should be worried about that and try the best we can to protect our system of external attacks. The limits of our protections are in the limits of our knowledge about how an attacker can attack the system.
 
 ------------------------------------------------------------------------------------------------
@@ -52,30 +63,43 @@ The truth is that we don't know the limits of what an attacker can do. Over the 
   
 Compromised Credentials:
 -	Usernames and password are the most common type of access credential and can give the unfettered access.
+
 Weak Credentials:
 -	Weak passwords and reused passwords mean one data breach can result in many more. We should have secure passwords in our application and use a password manager. 
+
 Insider Threats:
 -	Disgruntled employees or malicious insiders can expose private information or provide information about vulnerabilities.
+
 Missing or Poor Encryption:
 -	Missing or poor encryption for data at rest can mean that sensitive data or credentials are exposed in the event of a data breach or data leak.
+
 Ransomware:
 -	Ransomware is a form of extortion where data is deleted or encrypted unless a ransom is paid.
+
 Phishing:
 -	Phishing attacks are social engineering attacks where the target is contacted by email, telephone, or text message by someone who is posing to be a legitimate colleague or institution to trick them into providing sensitive data, credentials, or personally identifiable information.
+
 Vulnerabilities:
 -	New security vulnerabilities are added to the CVE every day and zero-day vulnerabilities are found just as often. If a developer has not released a patch for a zero-day vulnerability before an attack can exploit it, it can be hard to prevent zero-day attacks.
+
 Brute Force:
 -	Brute force attacks are based on trial and error. Attackers may continuously try to gain access to your organization until one attack works.
+
 Distributed Denial of Service:
 -	DDoS attacks are cyber-attacks against networked resources like data centers, servers, websites, or web applications and can limit the availability of a computer system.
+
 SQL Injections:
 -	Many of the servers that store sensitive data use SQL to manage the data in their database. An SQL injection uses malicious SQL to get the server to expose information it otherwise wouldn't.
+
 Trojans:
 -	Trojan horses are malware that misleads users by pretending to be a legitimate program and are often spread via infected email attachments or fake malicious software.
+
 Cross-Site Scripting (XSS):
 -	XSS attacks involve injecting malicious code into a website but the website itself is not being attacked, rather it aims to impact the website's visitors. A common way attackers can deploy cross-site scripting attacks is by injecting malicious code into a comment.
+
 Session Hijacking:
 -	When you log into a service, it generally provides your computer with a session key or cookie, so you don't need to log in again. This cookie can be hijacked by an attacker who uses it to gain access to sensitive information.
+
 Man-in-the-Middle Attacks:
 -	Public Wi-Fi networks can be exploited to perform man-in-the-middle attacks and intercept traffic that was supposed to go elsewhere.
 
@@ -86,9 +110,12 @@ Information from: https://www.upguard.com/blog/attack-vector#:~:text=The%20most%
   o	What should we do (or what have you done) to protect against attacks?
 
 I concentrated my efforts above all to protect the application from 3 attacks. These are SQL Injections, Cross-Site Scripting (XSS) and Cross-Site Request Forgery (CSRF). We must also do this on top of a secure design of the application beforehand.
+
 To avoid the SQL Injections, we should create prepared statements. Here we can see an example:
 -	cursor = conn.execute('SELECT * FROM people WHERE firstName = ?', (name,))
+
 To avoid Cross-Site Scripting (XSS), I implemented a input sanitization using the escape function from html library (html.escape(parameter)). The return of this function is a string of ascii character script from html, so we are not going to insert for example JavaScript code to our application.
+
 Last, to avoid Cross-Site Request Forgery I’m using a csrf token that allow my application to distinguish between legitimate and forged HTTP requests.
 
 ------------------------------------------------------------------------------------------------

@@ -37,10 +37,12 @@ def send():
         now = datetime.now()
         time_var = now.strftime("%d/%m/%Y %H:%M:%S")
         replyid = request.args.get('reply') or request.args.get('reply')
-        if replyid!='':
-            replyid = int(html.escape(replyid))
+        id = html.escape(replyid);
+
+        if id!='' and id.isdigit():
+            replyid = int(id)
         else:
-            replyid=(-1)
+            replyid=None
 
 
         if not sender or not message:

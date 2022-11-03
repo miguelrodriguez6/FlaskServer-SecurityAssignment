@@ -21,8 +21,9 @@ from flask_login import logout_user
 from os import urandom
 import time
 from datetime import datetime
-from flask import Flask, session
-#from flask.ext.session import Session
+from flask import session
+
+
 
 tls = local()
 inject = "'; insert into messages (sender,message) values ('foo', 'bar');select '"
@@ -39,6 +40,8 @@ size = 5
 # The secret key enables storing encrypted session data in a cookie (make a secure random key for this!)
 app.secret_key = urandom(size)
 
+
+
 # Add a login manager to the app
 import flask_login
 from flask_login import login_required, login_user
@@ -46,19 +49,14 @@ login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-
-#SESSION_TYPE = 'redis'
-#app.config.from_object(__name__)
-#Session(app)
-
-#sess = Session()
-#sess.init_app(app)
+#import messages
 
 # Class to store user info
 # UserMixin provides us with an `id` field and the necessary
 # methods (`is_authenticated`, `is_active`, `is_anonymous` and `get_id()`)
 class User(flask_login.UserMixin):
     pass
+
 
 
 # This method is called whenever the login manager needs to get
@@ -204,10 +202,28 @@ def login():
 @login_required
 def log_out():
     logout_user()
-    print(session['username'])
-    stmt = f"UPDATE users SET loged=0" #WHERE email=?"
-    c = conn.execute(stmt)
+    stmt = f"UPDATE users SET loged=0 WHERE email=?"
+    c = conn.execute(stmt, (session['username'],))
     return flask.redirect(flask.url_for('login'))
+
+def password_check(passwd):
+    val = True
+    if len(passwd) < 6:
+        print('length should be at least 6')
+        val = False
+    if len(passwd) > 20:
+        print('length should be not be greater than 8')
+        val = False
+    if not any(char.isdigit() for char in passwd):
+        print('Password should have at least one numeral')
+        val = False
+    if not any(char.isupper() for char in passwd):
+        print('Password should have at least one uppercase letter')
+        val = False
+    if not any(char.islower() for char in passwd):
+        print('Password should have at least one lowercase letter')
+        val = False
+    return val
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -216,12 +232,12 @@ def register():
             email=request.form.get('email'),
             password=request.form.get('password')
 
-            print(email[0])
-            print(password)
             if not email[0] or not password:
                 print(f'ERROR: missing email or password')
                 return render_template('./register.html')
             stmt = f"INSERT INTO users (email, password, loged) values (?, ?, ?);"
+            if password_check(password)==False:
+                return f"Password is not secure"
             #result = f"Query: {pygmentize(stmt)}\n"
             # adding 5gz as password
             salt = "5gz"
@@ -230,8 +246,6 @@ def register():
             # Encoding the password
             hashed = hashlib.md5(dataBase_password.encode())
             try:
-                print(email[0])
-                print(hashed.hexdigest())
                 conn.execute(stmt, (email[0], hashed.hexdigest(), 0))
             except Error as e:
                 print('Not successfully registration')
@@ -252,26 +266,7 @@ def register():
     return render_template('./register.html')
 
 
-
-
-@app.get('/search')
-def search():
-    query = request.args.get('q') or request.form.get('q') or '*'
-    see = ('sender', 'recipient')
-    stmt = f"SELECT * FROM messages WHERE message GLOB ? AND {see[1]} GLOB ? ORDER BY id DESC"
-    #result = f"Query: {pygmentize(stmt)}\n"
-
-    try:
-        c = conn.execute(stmt, (query, session['username']))
-        rows = c.fetchall()
-        result = 'Result:\n'
-        for row in rows:
-            result = f'{result}    {dumps(row)}\n'
-        c.close()
-        return result
-    except Error as e:
-        return (f'{result}ERROR: {e}', 500)
-
+#SEARCH AND SEND
 @app.route('/send', methods=['POST','GET'])
 def send():
     try:
@@ -285,32 +280,76 @@ def send():
             rows = c.fetchall()
             validRecipient = False
             for row in rows:
-                if recipient==row[0]:
-                    print('Valid recipient')
+                if recipient==row[0] or recipient=='everyone':
                     validRecipient = True
             c.close()
             if validRecipient==False:
-                print("Recipient doesn't exists")
-                return flask.redirect(flask.url_for('index_html'))
+                return "This recipient does not exist"
         except Error as e:
             return (f'ERROR: {e}', 500)
 
         message = request.args.get('message') or request.args.get('message')
 
-        time_var = str(time.time());
         now = datetime.now()
-        print(now)
-        replyid = 0;
+        time_var = now.strftime("%d/%m/%Y %H:%M:%S")
+        replyid = int(request.args.get('reply') or request.args.get('reply'))
 
-        print(recipient)
 
         if not sender or not message:
             return f'ERROR: missing sender or message'
         stmt = f"INSERT INTO messages (sender, recipient, timestamp, replyid, message) values (?, ?, ?, ?, ?);"
         conn.execute(stmt, (sender, recipient, time_var, replyid, message))
-        return f'Message sent to {recipient}.'
+        return f'Message [{message}] sent to {recipient}.'
     except Error as e:
         return f"Couldn't send the message. ERROR: {e}"
+
+
+@app.get('/search')
+def search():
+    query = request.args.get('q') or request.form.get('q') or '*'
+
+    if query=='sender':
+        stmt = f"SELECT * FROM messages WHERE sender GLOB ? ORDER BY id DESC"
+        print('Aqui1')
+    elif query=='recipient':
+        stmt = f"SELECT * FROM messages WHERE recipient GLOB ? OR recipient GLOB 'everyone' ORDER BY id DESC"
+        print('Aqui2')
+    elif query=='*':
+        stmt = f"SELECT * FROM messages WHERE (recipient GLOB ? OR recipient GLOB 'everyone' OR sender GLOB ?) ORDER BY id DESC"
+        print('Aqui3')
+    elif query.isdigit():
+        stmt = f"SELECT * FROM messages where id GLOB ? AND (recipient GLOB ? OR recipient GLOB 'everyone' OR sender GLOB ?)"
+        print('Aqui4')
+    else:
+        stmt = f"SELECT * FROM messages WHERE message GLOB ? AND (recipient GLOB ? OR recipient GLOB 'everyone' OR sender GLOB ?) ORDER BY id DESC"
+        print('Aqui5')
+
+
+    try:
+
+        if query=='sender':
+            c = conn.execute(stmt, (session['username'],))
+        elif query=='recipient':
+            c = conn.execute(stmt, (session['username'],))
+        elif query=='*':
+            c = conn.execute(stmt, (session['username'],session['username']))
+        elif query.isdigit():
+            c = conn.execute(stmt, (query, session['username'], session['username']))
+        else:
+            c = conn.execute(stmt, (query, session['username'], session['username']))
+
+        rows = c.fetchall()
+        result = 'Result:\n'
+        if len(rows)==0:
+            return f"No messages found."
+
+        for row in rows:
+            result = f'{result}    {dumps(row)}\n'
+        c.close()
+        return result
+    except Error as e:
+        return (f'Not possible to search. ERROR: {e}', 500)
+
 
 @app.get('/announcements')
 def announcements():

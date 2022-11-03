@@ -78,12 +78,29 @@
 <body id="page">
   <h1>REGISTRATION PAGE</h1>
     <div>
-      <form method="POST">
+      <!--<form method="POST">
             Email: <input type="email" name="email">
             Password: <input type="password" name="password">
             <input type="submit">
+      </form>-->
+
+
+      <form action="" method=post>
+      <dl>
+        {{ form.csrf_token }}
+
+      <dt>Email:
+      <dd>{{ form.username }}
+      <dt>Password:
+      <dd>{{ form.password }}
+      </dl>
+      <p>
+      <input type=submit value=Register>
+      <input type=hidden value="{{ next or '' }}" name=next>
+      <br>
       </form>
-      <a href="http://localhost:5000/login">Login</a>  
+
+      <a href="http://localhost:5000/login">Login</a>
     </div>
 </body>
 </html>

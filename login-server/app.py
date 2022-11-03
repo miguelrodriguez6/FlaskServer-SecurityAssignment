@@ -311,7 +311,7 @@ def send():
             return f'ERROR: missing one or more parameters'
         stmt = f"INSERT INTO messages (sender, recipient, timestamp, replyid, message) values (?, ?, ?, ?, ?);"
         conn.execute(stmt, (sender, recipient, time_var, replyid, message))
-        return f'Message [{message}] sent to {recipient}.'
+        return f'Message [{message}] sent to {recipient} at {time_var} replying to MessageID {replyid}.'
     except Error as e:
         return f"Couldn't send the message. ERROR: {e}"
 
@@ -346,12 +346,12 @@ def search():
             c = conn.execute(stmt, (query, session['username'], session['username']))
 
         rows = c.fetchall()
-        result = 'Result:\n'
+        result = 'Messages:\n'
         if len(rows)==0:
             return f"No messages found."
 
         for row in rows:
-            result = f'{result}    {dumps(row)}\n'
+            result = f'{result}      MessageID {dumps(row[0])} from {dumps(row[1])} to {dumps(row[2])} at {dumps(row[3])} replying to MessageID {dumps(row[4])}. Content: {dumps(row[5])}\n'
         c.close()
         return result
     except Error as e:

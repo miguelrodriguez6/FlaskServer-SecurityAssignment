@@ -7,18 +7,10 @@ First, we need to take a look to the structure of the code. Everything is mixed 
 We should restructure the functionalities of the server into different files where the ones that have a relation between them can go together in the same file. For example, in this case we can separate the search and send functions to another file. Also, we can create a new file for the login and registration (new) and so on with the rest of the functionalities.
 
 ------------------------------------------------------------------------------------------------
+IMPORTANT
 
-/**My code is not restructured because of that**/
-
-/** PROBLEM WHEN THE CODE IS RESTRUCTURED, I COULDN'T SOLVE IT. IT GIVES ME THE FOLLOWING ERROR. I COULDN'T FIND ANY OVERWRITTEN FUNCTION**/
-Traceback (most recent call last): File "messages.py", line 4, in from app import app File
-"/home/miguel/Documents/ssec/login-server/app.py", line 405, in import messages File
-"/home/miguel/Documents/ssec/login-server/messages.py", line 11, in def send(): File
-"/home/miguel/.local/lib/python3.8/site-packages/flask/scaffold.py", line 449, in decorator
-self.add_url_rule(rule, endpoint, f, **options) File "/home/miguel/.local/lib/python3.8/sitepackages/flask/scaffold.py", line 50, in wrapper_func return f(self, *args, kwargs) File
-"/home/miguel/.local/lib/python3.8/site-packages/flask/app.py", line 1358, in add_url_rule
-raise AssertionError( AssertionError: View function mapping is overwriting an existing endpoint
-function: send/
+//**BECAUSE OF THE RESTRUCTURE WHEN I COMPILE THE NEW FILES ALONE THEY GIVE ME AN ERROR BUT ALL WORKS CORRECTLY**//
+//**IF THERE IS ANY ERROR PLEASE PUT ALL TOGETHER IN app.py AND COMMENT THE FILE IMPORTS AT THE END**//
 
 ------------------------------------------------------------------------------------------------
 

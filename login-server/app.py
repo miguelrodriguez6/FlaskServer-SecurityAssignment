@@ -22,6 +22,7 @@ from os import urandom
 import time
 from datetime import datetime
 from flask import session
+import html
 
 
 
@@ -161,8 +162,8 @@ def login():
         print(request.form)
     if form.validate_on_submit():
         # TODO: we must check the username and password
-        username = form.username.data
-        password = form.password.data
+        username = html.escape(form.username.data)
+        password = html.escape(form.password.data)
 
         salt = "5gz"
         # Adding salt at the last of the password
@@ -229,10 +230,12 @@ def password_check(passwd):
 def register():
     if request.method == 'POST':
         try:
-            email=request.form.get('email'),
-            password=request.form.get('password')
+            email=html.escape(request.form.get('email'))
+            password=html.escape(request.form.get('password'))
+            #email = form.username.data
+            #password = form.password.data
 
-            if not email[0] or not password:
+            if not email or not password:
                 print(f'ERROR: missing email or password')
                 return render_template('./register.html')
             stmt = f"INSERT INTO users (email, password, loged) values (?, ?, ?);"
@@ -246,7 +249,7 @@ def register():
             # Encoding the password
             hashed = hashlib.md5(dataBase_password.encode())
             try:
-                conn.execute(stmt, (email[0], hashed.hexdigest(), 0))
+                conn.execute(stmt, (email, hashed.hexdigest(), 0))
             except Error as e:
                 print('Not successfully registration')
                 return render_template('./register.html')
@@ -273,6 +276,8 @@ def send():
         #sender = request.args.get('sender') or request.form.get('sender')
         sender = session['username']
         recipient = request.args.get('recipient') or request.form.get('recipient')
+        if recipient!=None:
+            recipient = html.escape(recipient)
 
         #Check that the recipient exists
         try:
@@ -288,15 +293,22 @@ def send():
         except Error as e:
             return (f'ERROR: {e}', 500)
 
-        message = request.args.get('message') or request.args.get('message')
+        message = html.escape(request.args.get('message') or request.args.get('message'))
+        if message!=None:
+            message = html.escape(message)
 
         now = datetime.now()
         time_var = now.strftime("%d/%m/%Y %H:%M:%S")
-        replyid = int(request.args.get('reply') or request.args.get('reply'))
+        replyid = request.args.get('reply') or request.args.get('reply')
+        print(type(replyid))
+        if replyid!='':
+            replyid = int(replyid)
+        else:
+            replyid=(-1)
 
 
         if not sender or not message:
-            return f'ERROR: missing sender or message'
+            return f'ERROR: missing one or more parameters'
         stmt = f"INSERT INTO messages (sender, recipient, timestamp, replyid, message) values (?, ?, ?, ?, ?);"
         conn.execute(stmt, (sender, recipient, time_var, replyid, message))
         return f'Message [{message}] sent to {recipient}.'
@@ -306,23 +318,18 @@ def send():
 
 @app.get('/search')
 def search():
-    query = request.args.get('q') or request.form.get('q') or '*'
+    query = html.escape(request.args.get('q') or request.form.get('q') or '*')
 
     if query=='sender':
         stmt = f"SELECT * FROM messages WHERE sender GLOB ? ORDER BY id DESC"
-        print('Aqui1')
     elif query=='recipient':
         stmt = f"SELECT * FROM messages WHERE recipient GLOB ? OR recipient GLOB 'everyone' ORDER BY id DESC"
-        print('Aqui2')
     elif query=='*':
         stmt = f"SELECT * FROM messages WHERE (recipient GLOB ? OR recipient GLOB 'everyone' OR sender GLOB ?) ORDER BY id DESC"
-        print('Aqui3')
     elif query.isdigit():
         stmt = f"SELECT * FROM messages where id GLOB ? AND (recipient GLOB ? OR recipient GLOB 'everyone' OR sender GLOB ?)"
-        print('Aqui4')
     else:
         stmt = f"SELECT * FROM messages WHERE message GLOB ? AND (recipient GLOB ? OR recipient GLOB 'everyone' OR sender GLOB ?) ORDER BY id DESC"
-        print('Aqui5')
 
 
     try:

@@ -7,12 +7,6 @@ First, we need to take a look to the structure of the code. Everything is mixed 
 We should restructure the functionalities of the server into different files where the ones that have a relation between them can go together in the same file. For example, in this case we can separate the search and send functions to another file. Also, we can create a new file for the login and registration (new) and so on with the rest of the functionalities.
 
 ------------------------------------------------------------------------------------------------
-IMPORTANT
-
-//**BECAUSE OF THE RESTRUCTURE WHEN I COMPILE THE NEW FILES ALONE THEY GIVE ME AN ERROR BUT ALL WORKS CORRECTLY**//
-//**IF THERE IS ANY ERROR PLEASE PUT ALL TOGETHER IN app.py AND COMMENT THE FILE IMPORTS AT THE END**//
-
-------------------------------------------------------------------------------------------------
 
 How the application works and how to test it.
 
